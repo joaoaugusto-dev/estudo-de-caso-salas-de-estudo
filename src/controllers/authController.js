@@ -17,3 +17,17 @@ exports.login = async (req, res) => {
     res.status(500).json({ erro: 'Erro interno' });
   }
 };
+
+exports.registrar = async (req, res) => {
+  try {
+    const { nome, email, senha } = req.body;
+    if (await Usuario.findOne({ where: { email } })) {
+      return res.status(409).json({ erro: 'Email já cadastrado' });
+    }
+    const hash = await bcrypt.hash(senha, 10);
+    const usuario = await Usuario.create({ nome, email, senha: hash });
+    res.status(201).json({ id: usuario.id, nome: usuario.nome, email: usuario.email });
+  } catch (e) {
+    res.status(500).json({ erro: 'Erro interno' });
+  }
+};
