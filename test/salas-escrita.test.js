@@ -76,9 +76,9 @@ test('DELETE /api/salas/:id', async (t) => {
   reservaAtiva = false;
   chamadas.length = 0;
 
-  // Tudo certo: 204, e a ordem tem que ser primeiro apagar as reservas e depois a sala,
+  // Tudo certo: 200 com mensagem, e a ordem tem que ser primeiro apagar as reservas e depois a sala,
   // as duas dentro da transação
-  assert.strictEqual((await del()).status, 204);
+  assert.strictEqual((await del()).status, 200);
   assert.deepStrictEqual(chamadas.slice(1), [
     ['Reserva.destroy', { where: { salaId: '3' }, transaction: 'tx' }],
     ['Sala.destroy', { where: { id: '3' }, transaction: 'tx' }],
