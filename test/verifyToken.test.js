@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 process.env.JWT_SECRET = 'segredo-de-teste';
 const verifyToken = require('../src/middlewares/verifyToken');
 
-// executa o middleware com um header Authorization e devolve o que ele fez
+// Função auxiliar: executa o middleware com um cabeçalho Authorization e devolve o que ele fez.
+// Crio um req e um res falsos só com o que o middleware usa (headers, status e json).
 const rodar = (authorization) => {
   const req = { headers: authorization === undefined ? {} : { authorization } };
   const saida = { chamouNext: false };
@@ -17,6 +18,7 @@ const rodar = (authorization) => {
   return { req, ...saida };
 };
 
+// Token certo: deixa passar (chama next) e guarda o id do usuário no req
 test('token válido anexa req.usuarioId e chama next', () => {
   const token = jwt.sign({ id: 7 }, 'segredo-de-teste');
   const r = rodar(`Bearer ${token}`);
@@ -25,6 +27,7 @@ test('token válido anexa req.usuarioId e chama next', () => {
   assert.strictEqual(r.status, undefined);
 });
 
+// Cabeçalho faltando ou no formato errado: 401 e não deixa passar
 test('retorna 401 para token ausente ou malformado', () => {
   for (const header of [undefined, '', 'Bearer', 'Bearer ', 'abc.def.ghi', 'Basic abc']) {
     const r = rodar(header);
@@ -34,6 +37,7 @@ test('retorna 401 para token ausente ou malformado', () => {
   }
 });
 
+// Token falso, assinado com outro segredo ou já vencido: também 401
 test('retorna 401 para token inválido, assinado com outro segredo ou expirado', () => {
   const outroSegredo = jwt.sign({ id: 7 }, 'outro-segredo');
   const expirado = jwt.sign({ id: 7 }, 'segredo-de-teste', { expiresIn: -10 });
