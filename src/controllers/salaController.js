@@ -35,13 +35,13 @@ exports.deletar = async (req, res) => {
       // Apago primeiro as reservas (canceladas) da sala e depois a própria sala
       await Reserva.destroy({ where: { salaId }, transaction });
       await Sala.destroy({ where: { id: salaId }, transaction });
-      return 204;
+      return 200;
     });
 
     // Fora da transação, traduzo o resultado para a resposta HTTP
     if (resultado === 404) return res.status(404).json({ erro: 'Sala não encontrada' });
     if (resultado === 409) return res.status(409).json({ erro: 'Sala tem reservas ativas' });
-    res.status(204).end();
+    res.status(200).json({ mensagem: 'Sala excluída' });
   } catch (e) {
     res.status(500).json({ erro: 'Erro interno' });
   }
