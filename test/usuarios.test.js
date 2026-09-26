@@ -12,7 +12,7 @@ const stubs = {
   sequelize: { transaction: async (fn) => fn('tx') },
   Reserva: { destroy: async (q) => chamadas.push(['Reserva', q]) },
   // destroy devolve 1 (apagou) ou 0 (não achou), igual o Sequelize faz
-  Usuario: { destroy: async (q) => (chamadas.push(['Usuario', q]), existe ? 1 : 0) },
+  Usuario: { findAll: async (q) => (chamadas.push(['findAll', q]), [{ id: 1, nome: 'Ana', email: 'a@a.com' }]), destroy: async (q) => (chamadas.push(['Usuario', q]), existe ? 1 : 0) },
 };
 const path = require.resolve('../src/models');
 require.cache[path] = { id: path, filename: path, loaded: true, exports: stubs };
@@ -44,4 +44,20 @@ test('DELETE /api/usuarios/me', async (t) => {
   // Se o usuário não existir mais: 404
   existe = false;
   assert.strictEqual((await del()).status, 404);
+});
+
+test('GET /api/usuarios', async (t) => {
+  const server = app.listen(0);
+  t.after(() => server.close());
+  const url = `http://localhost:${server.address().port}/api/usuarios`;
+
+  // Sem token: 401
+  assert.strictEqual((await fetch(url)).status, 401);
+
+  // Com token: 200 e a consulta pede só id, nome e email (sem senha)
+  chamadas.length = 0;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${jwt.sign({ id: 7 }, 'segredo-de-teste')}` } });
+  assert.strictEqual(res.status, 200);
+  assert.deepStrictEqual(await res.json(), [{ id: 1, nome: 'Ana', email: 'a@a.com' }]);
+  assert.deepStrictEqual(chamadas[0][1].attributes, ['id', 'nome', 'email']);
 });

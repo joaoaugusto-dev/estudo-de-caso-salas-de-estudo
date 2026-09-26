@@ -1,5 +1,14 @@
 const { sequelize, Usuario, Reserva } = require('../models');
 
+// LISTAR USUÁRIOS: devolve todos, só com id, nome e email (o hash da senha nunca sai)
+exports.listar = async (req, res) => {
+  try {
+    res.json(await Usuario.findAll({ attributes: ['id', 'nome', 'email'], order: [['id', 'ASC']] }));
+  } catch (e) {
+    res.status(500).json({ erro: 'Erro interno' });
+  }
+};
+
 // DELETAR MINHA CONTA: o usuário logado apaga a própria conta.
 // É exclusão de verdade (DELETE no banco), sem "soft delete": a conta e as reservas dela somem.
 exports.deletarMinhaConta = async (req, res) => {

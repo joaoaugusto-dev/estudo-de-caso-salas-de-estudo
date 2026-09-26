@@ -72,6 +72,7 @@ Base: `/api`. Rotas marcadas com 🔒 exigem `Authorization: Bearer <token>`.
 | POST | `/reservas` 🔒 | Cria reserva | 201, 400, 401, 404 (sala), 409 (conflito) |
 | GET | `/reservas` 🔒 | Lista as reservas do usuário | 200, 401 |
 | DELETE | `/reservas/:id` 🔒 | Cancela a própria reserva | 200, 401, 404 |
+| GET | `/usuarios` 🔒 | Lista todos os usuários (sem a senha) | 200, 401 |
 | DELETE | `/usuarios/me` 🔒 | Exclui a própria conta | 200, 401, 404 |
 
 Exemplo de reserva:
