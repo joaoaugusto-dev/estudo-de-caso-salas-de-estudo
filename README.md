@@ -92,13 +92,13 @@ POST /api/reservas
 
 ## Collection do Insomnia
 
-O arquivo [docs/insomnia-collection.json](docs/insomnia-collection.json) tem os casos de teste em ordem: cadastro e login, sucesso, 401 sem token, 400 de validação, 409 de conflito, listagem, cancelamento, criação e exclusão de salas e exclusão de conta. Os requests encadeiam token e ids pelas respostas anteriores.
+O arquivo [docs/insomnia-collection.json](docs/insomnia-collection.json) tem os casos de teste em ordem: cadastro e login, sucesso, 401 sem token, 400 de validação, 409 de conflito, listagem, cancelamento, criação e exclusão de salas e exclusão de conta. Os campos são texto simples (URL `http://localhost:3000/api`, e-mails `alice@teste.com` e `bruno@teste.com`, senha `senha123`, datas de 2030). A única coisa que vem de respostas anteriores é o **token** (e os ids dos recursos criados durante a execução), por isso a ordem importa.
 
 1. Insomnia: **Import** -> **From File** -> selecione o JSON.
-2. Suba a API (`npm run dev`) e rode `npm run seed`.
+2. Suba a API (`npm run dev`) na porta 3000 e rode `npm run seed` num banco novo: os requests de reserva usam a **sala de id 1** (Sala Alan Turing).
 3. Rode a collection **inteira, em ordem**. Ela apaga o que cria (inclusive a sala de teste), então pode ser repetida.
 
-O nome de cada request começa com o status HTTP esperado. A URL base fica no ambiente (`base_url`).
+O nome de cada request começa com o status HTTP esperado. Se a API rodar em outra porta, troque a URL nos requests.
 
 ## Equipe
 
