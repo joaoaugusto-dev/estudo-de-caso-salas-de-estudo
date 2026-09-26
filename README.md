@@ -68,7 +68,7 @@ Base: `/api`. Rotas marcadas com 🔒 exigem `Authorization: Bearer <token>`.
 | POST | `/auth/login` | Retorna o token JWT | 200, 400, 401 |
 | GET | `/salas` | Lista as salas (pública) | 200 |
 | POST | `/salas` 🔒 | Cria sala (`nome`, `capacidade`) | 201, 400, 401 |
-| DELETE | `/salas/:id` 🔒 | Exclui a sala | 204, 401, 404, 409 (reserva ativa) |
+| DELETE | `/salas/:id` 🔒 | Exclui a sala | 200, 401, 404, 409 (reserva ativa) |
 | POST | `/reservas` 🔒 | Cria reserva | 201, 400, 401, 404 (sala), 409 (conflito) |
 | GET | `/reservas` 🔒 | Lista as reservas do usuário | 200, 401 |
 | DELETE | `/reservas/:id` 🔒 | Cancela a própria reserva | 200, 401, 404 |
