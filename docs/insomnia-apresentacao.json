@@ -1,0 +1,276 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-26T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_demo",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Salas de Estudo - Apresentação",
+      "scope": "collection",
+      "description": "Roteiro curto para a apresentação. Rode em ordem, com a API no ar (npm run dev) e salas cadastradas (npm run seed). Termina excluindo a conta, então pode repetir."
+    },
+    {
+      "_id": "env_demo",
+      "_type": "environment",
+      "parentId": "wrk_demo",
+      "name": "Base Environment",
+      "isPrivate": false,
+      "metaSortKey": 1,
+      "data": {}
+    },
+    {
+      "_id": "req_register",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "201 · Cadastrar usuário",
+      "method": "POST",
+      "url": "http://localhost:3000/api/auth/register",
+      "metaSortKey": 100,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Demo\",\n  \"email\": \"demo@apresentacao.com\",\n  \"senha\": \"senha123\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {}
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Login (guarda o token)",
+      "method": "POST",
+      "url": "http://localhost:3000/api/auth/login",
+      "metaSortKey": 200,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"demo@apresentacao.com\",\n  \"senha\": \"senha123\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {}
+    },
+    {
+      "_id": "req_salas",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Listar salas (pública)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/salas",
+      "metaSortKey": 300,
+      "body": {},
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "req_sala",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "201 · Criar sala (guarda o id)",
+      "method": "POST",
+      "url": "http://localhost:3000/api/salas",
+      "metaSortKey": 400,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Sala Apresentação\",\n  \"capacidade\": 8\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_salas2",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Listar salas (com a nova)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/salas",
+      "metaSortKey": 500,
+      "body": {},
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "req_usuarios",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Listar todos os usuários",
+      "method": "GET",
+      "url": "http://localhost:3000/api/usuarios",
+      "metaSortKey": 600,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sem_token",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "401 · Reservar sem token",
+      "method": "POST",
+      "url": "http://localhost:3000/api/reservas",
+      "metaSortKey": 700,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {}
+    },
+    {
+      "_id": "req_invalido",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "400 · Reservar com fim antes do início",
+      "method": "POST",
+      "url": "http://localhost:3000/api/reservas",
+      "metaSortKey": 800,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T11:00:00Z\",\n  \"horarioFim\": \"2030-06-10T10:00:00Z\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_reserva",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "201 · Reservar sala (guarda o id)",
+      "method": "POST",
+      "url": "http://localhost:3000/api/reservas",
+      "metaSortKey": 900,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_conflito",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "409 · Reservar o mesmo horário",
+      "method": "POST",
+      "url": "http://localhost:3000/api/reservas",
+      "metaSortKey": 1000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:30:00Z\",\n  \"horarioFim\": \"2030-06-10T11:30:00Z\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_minhas",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Listar minhas reservas",
+      "method": "GET",
+      "url": "http://localhost:3000/api/reservas",
+      "metaSortKey": 1100,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_cancelar",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Cancelar reserva",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_reserva', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 1200,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_del_sala",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "204 · Deletar sala criada",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/salas/{% response 'body', 'req_sala', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 1300,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_excluir",
+      "_type": "request",
+      "parentId": "wrk_demo",
+      "name": "200 · Excluir conta",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/usuarios/me",
+      "metaSortKey": 1400,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    }
+  ]
+}
