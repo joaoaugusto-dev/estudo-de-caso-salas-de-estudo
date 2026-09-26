@@ -21,9 +21,11 @@
   },
   "homepage": "https://github.com/joaoaugusto-dev/estudo-de-caso-salas-de-estudo#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.24.4",
     "sequelize": "^6.37.8"
   }
