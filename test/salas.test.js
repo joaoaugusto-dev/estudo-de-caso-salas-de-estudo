@@ -1,10 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert');
 
-// model real; só o acesso ao banco é substituído
+// Uso o model de verdade, mas troco o findAll por uma função falsa (sem banco)
 const Sala = require('../src/models/Sala');
-let falhar = false;
-let consulta;
+let falhar = false; // quando true, simulo o banco fora do ar
+let consulta; // guarda o que o findAll recebeu
 Sala.findAll = async (q) => {
   consulta = q;
   if (falhar) throw new Error('banco fora');
@@ -18,14 +18,16 @@ test('GET /api/salas', async (t) => {
   t.after(() => server.close());
   const get = () => fetch(`http://localhost:${server.address().port}/api/salas`);
 
-  // rota pública: sem header Authorization
+  // Rota pública: chamo sem o cabeçalho Authorization e tem que funcionar
   const ok = await get();
   assert.strictEqual(ok.status, 200);
   const corpo = await ok.json();
   assert.strictEqual(corpo.length, 2);
   assert.strictEqual(corpo[0].nome, 'Sala A');
+  // Confiro que pediu ordenado pelo id
   assert.deepStrictEqual(consulta.order, [['id', 'ASC']]);
 
+  // Se o banco falhar, a API responde 500
   falhar = true;
   assert.strictEqual((await get()).status, 500);
 });
