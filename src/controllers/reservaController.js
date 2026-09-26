@@ -29,3 +29,31 @@ exports.criar = async (req, res) => {
     res.status(500).json({ erro: 'Erro interno' });
   }
 };
+
+
+exports.listarMinhas = async (req, res) => {
+  try {
+    const reservas = await Reserva.findAll({
+      where: { usuarioId: req.usuarioId },
+      include: [{ model: Sala, attributes: ['id', 'nome', 'capacidade'] }],
+      order: [['horarioInicio', 'ASC']],
+    });
+    res.json(reservas);
+  } catch (e) {
+    res.status(500).json({ erro: 'Erro interno' });
+  }
+};
+
+// cancela (não apaga) só reserva do próprio usuário; de outro usuário responde 404 para não revelar que existe
+exports.cancelar = async (req, res) => {
+  try {
+    const reserva = await Reserva.findOne({ where: { id: req.params.id, usuarioId: req.usuarioId } });
+    if (!reserva) {
+      return res.status(404).json({ erro: 'Reserva não encontrada' });
+    }
+    await reserva.update({ status: 'cancelada' });
+    res.status(204).end();
+  } catch (e) {
+    res.status(500).json({ erro: 'Erro interno' });
+  }
+};
