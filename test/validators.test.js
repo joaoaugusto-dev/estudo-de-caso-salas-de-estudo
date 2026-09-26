@@ -30,7 +30,14 @@ test('validators + handleValidation', async (t) => {
   assert.strictEqual(status, 400);
   assert.deepStrictEqual(corpo.detalhes.map((d) => d.campo).sort(), ['email', 'nome', 'senha']);
 
-  assert.strictEqual((await post('/login', {}))[0], 400);
+  // um erro por campo, sempre com mensagem própria (sem "Invalid value")
+  for (const rota of ['/login', '/register']) {
+    const [st, c] = await post(rota, {});
+    assert.strictEqual(st, 400);
+    const campos = c.detalhes.map((d) => d.campo);
+    assert.strictEqual(new Set(campos).size, campos.length);
+    assert.ok(c.detalhes.every((d) => d.mensagem !== 'Invalid value'));
+  }
   assert.strictEqual((await post('/reserva', { ...reserva, horarioFim: '2026-10-01T09:00:00' }))[0], 400);
   assert.strictEqual((await post('/reserva', { ...reserva, horarioInicio: 'ontem' }))[0], 400);
   assert.strictEqual((await post('/reserva', { ...reserva, salaId: 'x' }))[0], 400);
