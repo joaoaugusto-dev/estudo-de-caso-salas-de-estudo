@@ -189,7 +189,7 @@
       "_id": "req_login_vazio",
       "_type": "request",
       "parentId": "fld_auth",
-      "name": "401 · Login sem campos",
+      "name": "400 · Login com payload inválido (sem campos)",
       "description": "",
       "method": "POST",
       "url": "{{ _.base_url }}/auth/login",
