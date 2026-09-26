@@ -1,4 +1,3 @@
-// Usuario (issue #7) ainda não existe: o model é substituído por um stub em memória.
 const test = require('node:test');
 const assert = require('node:assert');
 const bcrypt = require('bcrypt');
@@ -6,11 +5,8 @@ const jwt = require('jsonwebtoken');
 
 process.env.JWT_SECRET = 'segredo-de-teste';
 const senha = bcrypt.hashSync('123456', 4);
-const path = require.resolve('../src/models/Usuario');
-require.cache[path] = {
-  id: path, filename: path, loaded: true,
-  exports: { findOne: async ({ where }) => (where.email === 'a@a.com' ? { id: 7, senha } : null) },
-};
+// model real; só o acesso ao banco é substituído
+require('../src/models/Usuario').findOne = async ({ where }) => (where.email === 'a@a.com' ? { id: 7, senha } : null);
 
 const app = require('../src/app');
 
