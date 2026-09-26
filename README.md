@@ -89,7 +89,6 @@ POST /api/reservas
 - **Excluir conta** é *delete real*: apaga o usuário e as reservas dele numa transação, sem auditoria. Serve de contraste com o cancelamento.
 - **Excluir sala** é *delete real*, mas só se ela não tiver reservas `ativa` (senão 409, para não derrubar a reserva de outro usuário). As reservas `cancelada` da sala são apagadas junto, numa transação.
 - **Reserva de outro usuário** responde 404, sem revelar que ela existe.
-- **Limitação conhecida:** a checagem de conflito e a inserção não são atômicas; duas requisições simultâneas podem passar. Para concorrência real, seria preciso travar a sala em uma transação.
 
 ## Collection do Insomnia
 
