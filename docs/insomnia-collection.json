@@ -10,7 +10,7 @@
       "parentId": null,
       "name": "Salas de Estudo - API",
       "scope": "collection",
-      "description": "Casos de teste da API de reservas de salas de estudo.\n\nExecute a collection INTEIRA em ordem (Collection Runner ou \"Send\" em sequência): os requests encadeiam token, ids de sala e de reserva pelas respostas anteriores.\n\nPré-requisitos: API no ar em base_url (npm run dev) e salas cadastradas (npm run seed).\n\nO nome de cada request começa com o status HTTP esperado. Ao final, uma pasta de limpeza cancela as reservas criadas, então a collection pode ser rodada várias vezes."
+      "description": "Casos de teste da API de reservas de salas de estudo.\n\nExecute a collection INTEIRA em ordem (Collection Runner ou \"Send\" em sequência): os requests encadeiam token, ids de sala e de reserva pelas respostas anteriores.\n\nPré-requisitos: API no ar em base_url (npm run dev) e salas cadastradas (npm run seed).\n\nO nome de cada request começa com o status HTTP esperado. Ao final, uma pasta de limpeza cancela as reservas criadas, e a pasta 5 exclui os usuários criados, então a collection pode ser rodada várias vezes sem deixar nada no banco."
     },
     {
       "_id": "env_base",
@@ -725,6 +725,96 @@
       "method": "DELETE",
       "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_res_adjacente', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 830,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "fld_exclusao",
+      "_type": "request_group",
+      "parentId": "wrk_salas_estudo",
+      "name": "5. Exclusão de conta",
+      "description": "DELETE real (sem soft delete, sem auditoria): apaga o usuário e as reservas dele. Remove também os usuários criados pela collection, então nada fica no banco.",
+      "metaSortKey": 930
+    },
+    {
+      "_id": "req_del_sem_token",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "401 · Excluir conta sem token",
+      "description": "",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/usuarios/me",
+      "metaSortKey": 940,
+      "body": {},
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "req_del_a",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "204 · Excluir conta do usuário A (e as reservas dele)",
+      "description": "",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/usuarios/me",
+      "metaSortKey": 950,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_del_b",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "204 · Excluir conta do usuário B",
+      "description": "",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/usuarios/me",
+      "metaSortKey": 960,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_b', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_del_login_a",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "401 · Login do usuário A após excluir",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "metaSortKey": 970,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"{% response 'body', 'req_register_a', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {}
+    },
+    {
+      "_id": "req_del_token_antigo",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "404 · Token antigo após excluir a conta",
+      "description": "O JWT ainda é válido, mas o usuário não existe mais.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/usuarios/me",
+      "metaSortKey": 980,
       "body": {},
       "headers": [],
       "authentication": {
