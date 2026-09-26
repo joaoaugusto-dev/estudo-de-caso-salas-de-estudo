@@ -42,7 +42,8 @@ test('GET e DELETE /api/reservas', async (t) => {
 
   // cancela a própria reserva
   const ok = await chamar('DELETE', '/5');
-  assert.strictEqual(ok.status, 204);
+  assert.strictEqual(ok.status, 200);
+  assert.deepStrictEqual(await ok.json(), { mensagem: 'Reserva cancelada' });
   assert.deepStrictEqual(atualizacoes, [{ status: 'cancelada' }]);
   assert.deepStrictEqual(consultaBusca.where, { id: '5', usuarioId: 7 });
 

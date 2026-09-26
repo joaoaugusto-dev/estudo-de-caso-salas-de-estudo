@@ -52,7 +52,7 @@ exports.cancelar = async (req, res) => {
       return res.status(404).json({ erro: 'Reserva não encontrada' });
     }
     await reserva.update({ status: 'cancelada' });
-    res.status(204).end();
+    res.json({ mensagem: 'Reserva cancelada' });
   } catch (e) {
     res.status(500).json({ erro: 'Erro interno' });
   }

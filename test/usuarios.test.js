@@ -28,7 +28,9 @@ test('DELETE /api/usuarios/me', async (t) => {
   assert.strictEqual((await del('Bearer lixo')).status, 401);
   assert.strictEqual(chamadas.length, 0);
 
-  assert.strictEqual((await del()).status, 204);
+  const ok = await del();
+  assert.strictEqual(ok.status, 200);
+  assert.deepStrictEqual(await ok.json(), { mensagem: 'Conta excluída' });
   assert.deepStrictEqual(chamadas, [
     ['Reserva', { where: { usuarioId: 7 }, transaction: 'tx' }],
     ['Usuario', { where: { id: 7 }, transaction: 'tx' }],

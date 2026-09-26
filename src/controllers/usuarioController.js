@@ -8,7 +8,7 @@ exports.deletarMinhaConta = async (req, res) => {
       return Usuario.destroy({ where: { id: req.usuarioId }, transaction });
     });
     if (!apagados) return res.status(404).json({ erro: 'Usuário não encontrado' });
-    res.status(204).end();
+    res.json({ mensagem: 'Conta excluída' });
   } catch (e) {
     res.status(500).json({ erro: 'Erro interno' });
   }
