@@ -10,7 +10,7 @@
       "parentId": null,
       "name": "Salas de Estudo - API",
       "scope": "collection",
-      "description": "Casos de teste da API de reservas de salas de estudo.\n\nExecute a collection INTEIRA em ordem (Collection Runner ou \"Send\" em sequência): os requests encadeiam token, ids de sala e de reserva pelas respostas anteriores.\n\nPré-requisitos: API no ar em base_url (npm run dev) e salas cadastradas (npm run seed).\n\nO nome de cada request começa com o status HTTP esperado. Ao final, uma pasta de limpeza cancela as reservas criadas, e a pasta 5 exclui os usuários criados, então a collection pode ser rodada várias vezes sem deixar nada no banco."
+      "description": "Casos de teste da API de reservas de salas de estudo.\n\nExecute a collection INTEIRA em ordem (Collection Runner ou \"Send\" em sequência): os requests encadeiam token, ids de sala e de reserva pelas respostas anteriores.\n\nPré-requisitos: API no ar em base_url (npm run dev) e salas cadastradas (npm run seed).\n\nO nome de cada request começa com o status HTTP esperado. Ao final, uma pasta de limpeza cancela as reservas criadas, a pasta 5 cria e apaga uma sala de teste, e a pasta 6 exclui os usuários criados, então a collection pode ser rodada várias vezes sem deixar nada no banco."
     },
     {
       "_id": "env_base",
@@ -733,12 +733,206 @@
       }
     },
     {
+      "_id": "fld_salas_escrita",
+      "_type": "request_group",
+      "parentId": "wrk_salas_estudo",
+      "name": "5. Criar e deletar salas",
+      "description": "Rotas protegidas de escrita em /salas. Cria uma sala de teste, prova que ela não pode ser apagada com reserva ativa e a apaga no fim, sem deixar nada no banco.",
+      "metaSortKey": 850
+    },
+    {
+      "_id": "req_sala_sem_token",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "401 · Criar sala sem token",
+      "description": "Rota protegida sem o header Authorization: o verifyToken bloqueia (401) antes de qualquer validação.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/salas",
+      "metaSortKey": 860,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Sala de Teste\",\n  \"capacidade\": 3\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {}
+    },
+    {
+      "_id": "req_sala_invalida",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "400 · Criar sala com payload inválido",
+      "description": "Nome vazio e capacidade 0: 400 apontando os campos nome e capacidade.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/salas",
+      "metaSortKey": 870,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"\",\n  \"capacidade\": 0\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_criar",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "201 · Criar sala com sucesso",
+      "description": "Caso de sucesso: cria a sala 'Sala de Teste' (201) e guarda o id dela para os próximos requests.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/salas",
+      "metaSortKey": 880,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Sala de Teste\",\n  \"capacidade\": 3\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_del_sem_token",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "401 · Deletar sala sem token",
+      "description": "Deletar sala exige login: sem token, 401 e a sala continua existindo.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 890,
+      "body": {},
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "req_sala_del_inexistente",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "404 · Deletar sala inexistente",
+      "description": "Id que não existe: 404 'Sala não encontrada'.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/salas/999999",
+      "metaSortKey": 900,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_res",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "201 · Reservar a sala recém-criada",
+      "description": "Cria uma reserva ativa do usuário A na sala nova, para testar a regra de exclusão no próximo request.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/reservas",
+      "metaSortKey": 910,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"salaId\": {% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_del_ativa",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "409 · Deletar sala com reserva ativa",
+      "description": "Sala com reserva ativa não pode ser apagada (409), para não derrubar a reserva de outro usuário.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 920,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_res_cancelar",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "204 · Cancelar a reserva da sala",
+      "description": "Cancela a reserva (soft delete): a sala fica sem reservas ativas.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_sala_res', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 930,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_del",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "204 · Deletar sala sem reservas ativas",
+      "description": "Delete real: apaga a sala e o histórico de reservas canceladas dela (204).",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 940,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
+      "_id": "req_sala_del_repetido",
+      "_type": "request",
+      "parentId": "fld_salas_escrita",
+      "name": "404 · Deletar a mesma sala de novo",
+      "description": "A sala já foi apagada: 404 'Sala não encontrada'.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "metaSortKey": 950,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
       "_id": "fld_exclusao",
       "_type": "request_group",
       "parentId": "wrk_salas_estudo",
-      "name": "5. Exclusão de conta",
+      "name": "6. Exclusão de conta",
       "description": "DELETE real (sem soft delete, sem auditoria): apaga o usuário e as reservas dele. Remove também os usuários criados pela collection, então nada fica no banco.",
-      "metaSortKey": 930
+      "metaSortKey": 1030
     },
     {
       "_id": "req_del_sem_token",
@@ -748,7 +942,7 @@
       "description": "Excluir conta exige login: sem token, 401.",
       "method": "DELETE",
       "url": "{{ _.base_url }}/usuarios/me",
-      "metaSortKey": 940,
+      "metaSortKey": 1040,
       "body": {},
       "headers": [],
       "authentication": {}
@@ -761,7 +955,7 @@
       "description": "Delete real (sem soft delete e sem auditoria): apaga o usuário A e as reservas dele numa transação (200 com mensagem).",
       "method": "DELETE",
       "url": "{{ _.base_url }}/usuarios/me",
-      "metaSortKey": 950,
+      "metaSortKey": 1050,
       "body": {},
       "headers": [],
       "authentication": {
@@ -777,7 +971,7 @@
       "description": "Apaga também o usuário B, para a collection não deixar dados de teste no banco.",
       "method": "DELETE",
       "url": "{{ _.base_url }}/usuarios/me",
-      "metaSortKey": 960,
+      "metaSortKey": 1060,
       "body": {},
       "headers": [],
       "authentication": {
@@ -793,7 +987,7 @@
       "description": "Prova que a exclusão foi real: o usuário A não consegue mais logar (401).",
       "method": "POST",
       "url": "{{ _.base_url }}/auth/login",
-      "metaSortKey": 970,
+      "metaSortKey": 1070,
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"email\": \"{% response 'body', 'req_register_a', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"{{ _.senha }}\"\n}"
@@ -814,7 +1008,7 @@
       "description": "O JWT antigo ainda é válido, mas o usuário não existe mais: 404.",
       "method": "DELETE",
       "url": "{{ _.base_url }}/usuarios/me",
-      "metaSortKey": 980,
+      "metaSortKey": 1080,
       "body": {},
       "headers": [],
       "authentication": {

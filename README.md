@@ -11,8 +11,8 @@ Em uma biblioteca ou faculdade, as salas de estudo são poucas e a disputa por e
 | Requisito | Onde está |
 |---|---|
 | Model com Sequelize e MySQL | `src/models/` (`Usuario`, `Sala`, `Reserva`, com associações) |
-| Middleware JWT (`verifyToken`) em rota protegida | `src/middlewares/verifyToken.js`, usado em `/api/reservas` e `/api/usuarios/me` |
-| express-validator | `src/validators/` (cadastro, login e reserva) + `src/middlewares/handleValidation.js` |
+| Middleware JWT (`verifyToken`) em rota protegida | `src/middlewares/verifyToken.js`, usado em `/api/reservas`, `/api/usuarios/me` e na escrita em `/api/salas` |
+| express-validator | `src/validators/` (cadastro, login, reserva e sala) + `src/middlewares/handleValidation.js` |
 | bcrypt | `src/controllers/authController.js` (hash no cadastro, `compare` no login) |
 
 ## Arquitetura (MVC)
@@ -67,6 +67,8 @@ Base: `/api`. Rotas marcadas com 🔒 exigem `Authorization: Bearer <token>`.
 | POST | `/auth/register` | Cadastra usuário | 201, 400, 409 (e-mail já usado) |
 | POST | `/auth/login` | Retorna o token JWT | 200, 400, 401 |
 | GET | `/salas` | Lista as salas (pública) | 200 |
+| POST | `/salas` 🔒 | Cria sala (`nome`, `capacidade`) | 201, 400, 401 |
+| DELETE | `/salas/:id` 🔒 | Exclui a sala | 204, 401, 404, 409 (reserva ativa) |
 | POST | `/reservas` 🔒 | Cria reserva | 201, 400, 401, 404 (sala), 409 (conflito) |
 | GET | `/reservas` 🔒 | Lista as reservas do usuário | 200, 401 |
 | DELETE | `/reservas/:id` 🔒 | Cancela a própria reserva | 200, 401, 404 |
@@ -84,16 +86,17 @@ POST /api/reservas
 - **Conflito de horário:** duas reservas se sobrepõem quando uma começa antes do fim da outra e termina depois do início dela. Horários que apenas se encostam (10h–11h e 11h–12h) não conflitam. O conflito só considera reservas `ativa`.
 - **Cancelar reserva** é *soft delete*: a linha continua no banco com `status = 'cancelada'`, preservando o histórico, e o horário fica livre.
 - **Excluir conta** é *delete real*: apaga o usuário e as reservas dele numa transação, sem auditoria. Serve de contraste com o cancelamento.
+- **Excluir sala** é *delete real*, mas só se ela não tiver reservas `ativa` (senão 409, para não derrubar a reserva de outro usuário). As reservas `cancelada` da sala são apagadas junto, numa transação.
 - **Reserva de outro usuário** responde 404, sem revelar que ela existe.
 - **Limitação conhecida:** a checagem de conflito e a inserção não são atômicas; duas requisições simultâneas podem passar. Para concorrência real, seria preciso travar a sala em uma transação.
 
 ## Collection do Insomnia
 
-O arquivo [docs/insomnia-collection.json](docs/insomnia-collection.json) tem os casos de teste em ordem: cadastro e login, sucesso, 401 sem token, 400 de validação, 409 de conflito, listagem, cancelamento e exclusão de conta. Os requests encadeiam token e ids pelas respostas anteriores.
+O arquivo [docs/insomnia-collection.json](docs/insomnia-collection.json) tem os casos de teste em ordem: cadastro e login, sucesso, 401 sem token, 400 de validação, 409 de conflito, listagem, cancelamento, criação e exclusão de salas e exclusão de conta. Os requests encadeiam token e ids pelas respostas anteriores.
 
 1. Insomnia: **Import** -> **From File** -> selecione o JSON.
 2. Suba a API (`npm run dev`) e rode `npm run seed`.
-3. Rode a collection **inteira, em ordem**. Ela apaga o que cria, então pode ser repetida.
+3. Rode a collection **inteira, em ordem**. Ela apaga o que cria (inclusive a sala de teste), então pode ser repetida.
 
 O nome de cada request começa com o status HTTP esperado. A URL base fica no ambiente (`base_url`).
 
