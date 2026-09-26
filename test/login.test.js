@@ -21,7 +21,12 @@ test('POST /api/auth/login', async (t) => {
   assert.strictEqual(ok.status, 200);
   assert.strictEqual(jwt.verify((await ok.json()).token, 'segredo-de-teste').id, 7);
 
-  for (const body of [{ email: 'a@a.com', senha: 'errada' }, { email: 'x@x.com', senha: '123456' }, {}]) {
+  for (const body of [{ email: 'a@a.com', senha: 'errada' }, { email: 'x@x.com', senha: '123456' }]) {
     assert.strictEqual((await post(body)).status, 401);
+  }
+
+  // payload inválido é barrado pelo validator antes de consultar o banco
+  for (const body of [{}, { email: 'nao-e-email', senha: '123456' }, { email: 'a@a.com' }]) {
+    assert.strictEqual((await post(body)).status, 400);
   }
 });
