@@ -3,14 +3,10 @@ const assert = require('node:assert');
 const bcrypt = require('bcrypt');
 
 const criados = [];
-const path = require.resolve('../src/models/Usuario');
-require.cache[path] = {
-  id: path, filename: path, loaded: true,
-  exports: {
-    findOne: async ({ where }) => (where.email === 'existe@a.com' ? { id: 1 } : null),
-    create: async (dados) => { criados.push(dados); return { id: 9, ...dados }; },
-  },
-};
+// model real; só o acesso ao banco é substituído
+const Usuario = require('../src/models/Usuario');
+Usuario.findOne = async ({ where }) => (where.email === 'existe@a.com' ? { id: 1 } : null);
+Usuario.create = async (dados) => { criados.push(dados); return { id: 9, ...dados }; };
 
 const app = require('../src/app');
 
