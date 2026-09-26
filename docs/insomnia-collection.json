@@ -19,16 +19,7 @@
       "name": "Base Environment",
       "isPrivate": false,
       "metaSortKey": 1,
-      "data": {
-        "base_url": "http://localhost:3000/api",
-        "senha": "senha123",
-        "inicio": "2030-06-10T10:00:00Z",
-        "fim": "2030-06-10T11:00:00Z",
-        "inicio_sobreposto": "2030-06-10T10:30:00Z",
-        "fim_sobreposto": "2030-06-10T11:30:00Z",
-        "inicio_adjacente": "2030-06-10T11:00:00Z",
-        "fim_adjacente": "2030-06-10T12:00:00Z"
-      }
+      "data": {}
     },
     {
       "_id": "fld_infra",
@@ -45,7 +36,7 @@
       "name": "200 · Ping",
       "description": "Health check: confirma que a API está no ar antes de rodar o resto.",
       "method": "GET",
-      "url": "{{ _.base_url }}/ping",
+      "url": "http://localhost:3000/api/ping",
       "metaSortKey": 110,
       "body": {},
       "headers": [],
@@ -66,11 +57,11 @@
       "name": "201 · Cadastrar usuário A",
       "description": "Cria o usuário A com e-mail único (timestamp). A senha é guardada como hash bcrypt e a resposta não devolve a senha.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/register",
+      "url": "http://localhost:3000/api/auth/register",
       "metaSortKey": 220,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Usuário A\",\n  \"email\": \"a{% now 'millis', '' %}@teste.com\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+        "text": "{\n  \"nome\": \"Usuário A\",\n  \"email\": \"alice@teste.com\",\n  \"senha\": \"senha123\"\n}"
       },
       "headers": [
         {
@@ -87,11 +78,11 @@
       "name": "409 · Cadastrar com e-mail já existente",
       "description": "Cadastrar de novo o e-mail do usuário A deve ser recusado (409), pois o e-mail é único.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/register",
+      "url": "http://localhost:3000/api/auth/register",
       "metaSortKey": 230,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Usuário A\",\n  \"email\": \"{% response 'body', 'req_register_a', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+        "text": "{\n  \"nome\": \"Usuário A\",\n  \"email\": \"alice@teste.com\",\n  \"senha\": \"senha123\"\n}"
       },
       "headers": [
         {
@@ -108,7 +99,7 @@
       "name": "400 · Cadastrar com payload inválido",
       "description": "Nome vazio, e-mail malformado e senha com menos de 6 caracteres: o express-validator barra tudo e lista cada campo (400).",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/register",
+      "url": "http://localhost:3000/api/auth/register",
       "metaSortKey": 240,
       "body": {
         "mimeType": "application/json",
@@ -129,11 +120,11 @@
       "name": "200 · Login usuário A (guarda o token)",
       "description": "Login válido devolve o token JWT, que os requests seguintes usam como Bearer token.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/login",
+      "url": "http://localhost:3000/api/auth/login",
       "metaSortKey": 250,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{% response 'body', 'req_register_a', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+        "text": "{\n  \"email\": \"alice@teste.com\",\n  \"senha\": \"senha123\"\n}"
       },
       "headers": [
         {
@@ -150,11 +141,11 @@
       "name": "401 · Login com senha errada",
       "description": "E-mail correto com senha errada: bcrypt.compare falha e a API responde 401 sem dizer qual dado errou.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/login",
+      "url": "http://localhost:3000/api/auth/login",
       "metaSortKey": 260,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{% response 'body', 'req_register_a', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"errada\"\n}"
+        "text": "{\n  \"email\": \"alice@teste.com\",\n  \"senha\": \"errada\"\n}"
       },
       "headers": [
         {
@@ -171,7 +162,7 @@
       "name": "401 · Login com usuário inexistente",
       "description": "Usuário que não existe recebe a mesma resposta 401 da senha errada, para não revelar quais e-mails estão cadastrados.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/login",
+      "url": "http://localhost:3000/api/auth/login",
       "metaSortKey": 270,
       "body": {
         "mimeType": "application/json",
@@ -192,7 +183,7 @@
       "name": "400 · Login com payload inválido (sem campos)",
       "description": "Corpo sem e-mail nem senha é barrado pelo validator antes de consultar o banco (400).",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/login",
+      "url": "http://localhost:3000/api/auth/login",
       "metaSortKey": 280,
       "body": {
         "mimeType": "application/json",
@@ -213,11 +204,11 @@
       "name": "201 · Cadastrar usuário B",
       "description": "Cria o usuário B, usado para provar que um usuário não mexe nas reservas do outro.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/register",
+      "url": "http://localhost:3000/api/auth/register",
       "metaSortKey": 290,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"nome\": \"Usuário B\",\n  \"email\": \"b{% now 'millis', '' %}@teste.com\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+        "text": "{\n  \"nome\": \"Usuário B\",\n  \"email\": \"bruno@teste.com\",\n  \"senha\": \"senha123\"\n}"
       },
       "headers": [
         {
@@ -234,11 +225,11 @@
       "name": "200 · Login usuário B",
       "description": "Login do usuário B; guarda o token dele.",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/login",
+      "url": "http://localhost:3000/api/auth/login",
       "metaSortKey": 300,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{% response 'body', 'req_register_b', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+        "text": "{\n  \"email\": \"bruno@teste.com\",\n  \"senha\": \"senha123\"\n}"
       },
       "headers": [
         {
@@ -263,7 +254,7 @@
       "name": "200 · Listar salas (pública, sem token)",
       "description": "Rota pública (sem token): lista as salas do seed e guarda o id da primeira para as reservas.",
       "method": "GET",
-      "url": "{{ _.base_url }}/salas",
+      "url": "http://localhost:3000/api/salas",
       "metaSortKey": 410,
       "body": {},
       "headers": [],
@@ -284,11 +275,11 @@
       "name": "401 · Criar reserva sem token",
       "description": "Rota protegida sem o header Authorization: o verifyToken bloqueia (401) antes de qualquer validação.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 520,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -305,11 +296,11 @@
       "name": "401 · Criar reserva com token inválido",
       "description": "Token com formato de JWT mas assinatura inválida também é recusado (401).",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 530,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -329,11 +320,11 @@
       "name": "400 · Payload inválido: salaId inválido",
       "description": "salaId 0 não é um inteiro válido (mínimo 1): 400 com o campo salaId apontado.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 540,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": 0,\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 0,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -353,11 +344,11 @@
       "name": "400 · Payload inválido: datas fora do ISO 8601",
       "description": "Datas que não seguem o padrão ISO 8601 são recusadas (400) em horarioInicio e horarioFim.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 550,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"amanha\",\n  \"horarioFim\": \"depois\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"amanha\",\n  \"horarioFim\": \"depois\"\n}"
       },
       "headers": [
         {
@@ -377,7 +368,7 @@
       "name": "400 · Payload inválido: corpo vazio",
       "description": "Corpo vazio: os três campos obrigatórios aparecem como inválidos (400).",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 560,
       "body": {
         "mimeType": "application/json",
@@ -401,11 +392,11 @@
       "name": "400 · Payload inválido: fim anterior ao início",
       "description": "Regra de negócio no validator: horarioFim precisa ser posterior a horarioInicio (400).",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 570,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.fim }}\",\n  \"horarioFim\": \"{{ _.inicio }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T11:00:00Z\",\n  \"horarioFim\": \"2030-06-10T10:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -425,11 +416,11 @@
       "name": "404 · Sala inexistente",
       "description": "Payload válido, mas a sala 999999 não existe: 404 antes de checar conflito.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 580,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": 999999,\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 999999,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -449,11 +440,11 @@
       "name": "201 · Criar reserva com sucesso",
       "description": "Caso de sucesso: reserva a primeira sala das 10h às 11h (201) e guarda o id da reserva.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 590,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -473,11 +464,11 @@
       "name": "409 · Conflito: mesmo horário na mesma sala",
       "description": "Mesma sala e mesmo horário da reserva anterior: a API recusa com 409.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 600,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -497,11 +488,11 @@
       "name": "409 · Conflito: outro usuário, mesmo horário e sala",
       "description": "O conflito vale para qualquer usuário: o usuário B também recebe 409 na sala já ocupada.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 610,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -521,11 +512,11 @@
       "name": "409 · Conflito: sobreposição parcial",
       "description": "Sobreposição parcial (10:30 às 11:30 sobre 10:00 às 11:00) também é conflito (409).",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 620,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio_sobreposto }}\",\n  \"horarioFim\": \"{{ _.fim_sobreposto }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:30:00Z\",\n  \"horarioFim\": \"2030-06-10T11:30:00Z\"\n}"
       },
       "headers": [
         {
@@ -545,11 +536,11 @@
       "name": "201 · Horário adjacente não conflita",
       "description": "Horários que só se encostam (11:00 às 12:00 logo após 10:00 às 11:00) não conflitam: 201.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 630,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio_adjacente }}\",\n  \"horarioFim\": \"{{ _.fim_adjacente }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T11:00:00Z\",\n  \"horarioFim\": \"2030-06-10T12:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -569,7 +560,7 @@
       "name": "401 · Listar reservas sem token",
       "description": "Listar reservas exige login: sem token, 401.",
       "method": "GET",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 640,
       "body": {},
       "headers": [],
@@ -582,7 +573,7 @@
       "name": "200 · Listar minhas reservas (com a sala)",
       "description": "Devolve só as reservas do usuário do token, com os dados da sala, ordenadas por horário de início.",
       "method": "GET",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 650,
       "body": {},
       "headers": [],
@@ -598,7 +589,7 @@
       "name": "200 · Listar reservas do usuário B (vazio)",
       "description": "O usuário B não vê as reservas do A: a lista vem vazia.",
       "method": "GET",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 660,
       "body": {},
       "headers": [],
@@ -614,7 +605,7 @@
       "name": "401 · Cancelar reserva sem token",
       "description": "Cancelar exige login: sem token, 401.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_res_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_res_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 670,
       "body": {},
       "headers": [],
@@ -627,7 +618,7 @@
       "name": "404 · Cancelar reserva de outro usuário",
       "description": "O usuário B tenta cancelar a reserva do A: 404, sem revelar que a reserva existe.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_res_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_res_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 680,
       "body": {},
       "headers": [],
@@ -643,7 +634,7 @@
       "name": "404 · Cancelar reserva inexistente",
       "description": "Id que não existe responde 404, igual ao caso da reserva alheia.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/999999",
+      "url": "http://localhost:3000/api/reservas/999999",
       "metaSortKey": 690,
       "body": {},
       "headers": [],
@@ -659,7 +650,7 @@
       "name": "200 · Cancelar a própria reserva",
       "description": "Soft delete: o dono cancela (200 com mensagem) e a linha continua no banco com status 'cancelada', preservando o histórico.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_res_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_res_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 700,
       "body": {},
       "headers": [],
@@ -675,11 +666,11 @@
       "name": "201 · Recriar no horário liberado",
       "description": "Como o cancelamento libera o horário, criar de novo no mesmo horário volta a funcionar (201).",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 710,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_listar_salas', 'b64::JFswXS5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": 1,\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -707,7 +698,7 @@
       "name": "200 · Cancelar reserva recriada",
       "description": "Limpeza: cancela a reserva recriada para a collection poder ser repetida.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_res_recriar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_res_recriar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 820,
       "body": {},
       "headers": [],
@@ -723,7 +714,7 @@
       "name": "200 · Cancelar reserva adjacente",
       "description": "Limpeza: cancela a reserva do horário adjacente.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_res_adjacente', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_res_adjacente', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 830,
       "body": {},
       "headers": [],
@@ -747,7 +738,7 @@
       "name": "401 · Criar sala sem token",
       "description": "Rota protegida sem o header Authorization: o verifyToken bloqueia (401) antes de qualquer validação.",
       "method": "POST",
-      "url": "{{ _.base_url }}/salas",
+      "url": "http://localhost:3000/api/salas",
       "metaSortKey": 860,
       "body": {
         "mimeType": "application/json",
@@ -768,7 +759,7 @@
       "name": "400 · Criar sala com payload inválido",
       "description": "Nome vazio e capacidade 0: 400 apontando os campos nome e capacidade.",
       "method": "POST",
-      "url": "{{ _.base_url }}/salas",
+      "url": "http://localhost:3000/api/salas",
       "metaSortKey": 870,
       "body": {
         "mimeType": "application/json",
@@ -792,7 +783,7 @@
       "name": "201 · Criar sala com sucesso",
       "description": "Caso de sucesso: cria a sala 'Sala de Teste' (201) e guarda o id dela para os próximos requests.",
       "method": "POST",
-      "url": "{{ _.base_url }}/salas",
+      "url": "http://localhost:3000/api/salas",
       "metaSortKey": 880,
       "body": {
         "mimeType": "application/json",
@@ -816,7 +807,7 @@
       "name": "401 · Deletar sala sem token",
       "description": "Deletar sala exige login: sem token, 401 e a sala continua existindo.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 890,
       "body": {},
       "headers": [],
@@ -829,7 +820,7 @@
       "name": "404 · Deletar sala inexistente",
       "description": "Id que não existe: 404 'Sala não encontrada'.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/salas/999999",
+      "url": "http://localhost:3000/api/salas/999999",
       "metaSortKey": 900,
       "body": {},
       "headers": [],
@@ -845,11 +836,11 @@
       "name": "201 · Reservar a sala recém-criada",
       "description": "Cria uma reserva ativa do usuário A na sala nova, para testar a regra de exclusão no próximo request.",
       "method": "POST",
-      "url": "{{ _.base_url }}/reservas",
+      "url": "http://localhost:3000/api/reservas",
       "metaSortKey": 910,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"salaId\": {% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"{{ _.inicio }}\",\n  \"horarioFim\": \"{{ _.fim }}\"\n}"
+        "text": "{\n  \"salaId\": {% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %},\n  \"horarioInicio\": \"2030-06-10T10:00:00Z\",\n  \"horarioFim\": \"2030-06-10T11:00:00Z\"\n}"
       },
       "headers": [
         {
@@ -869,7 +860,7 @@
       "name": "409 · Deletar sala com reserva ativa",
       "description": "Sala com reserva ativa não pode ser apagada (409), para não derrubar a reserva de outro usuário.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 920,
       "body": {},
       "headers": [],
@@ -882,10 +873,10 @@
       "_id": "req_sala_res_cancelar",
       "_type": "request",
       "parentId": "fld_salas_escrita",
-      "name": "204 · Cancelar a reserva da sala",
+      "name": "200 · Cancelar a reserva da sala",
       "description": "Cancela a reserva (soft delete): a sala fica sem reservas ativas.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/reservas/{% response 'body', 'req_sala_res', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/reservas/{% response 'body', 'req_sala_res', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 930,
       "body": {},
       "headers": [],
@@ -901,7 +892,7 @@
       "name": "204 · Deletar sala sem reservas ativas",
       "description": "Delete real: apaga a sala e o histórico de reservas canceladas dela (204).",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 940,
       "body": {},
       "headers": [],
@@ -917,7 +908,7 @@
       "name": "404 · Deletar a mesma sala de novo",
       "description": "A sala já foi apagada: 404 'Sala não encontrada'.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
+      "url": "http://localhost:3000/api/salas/{% response 'body', 'req_sala_criar', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "metaSortKey": 950,
       "body": {},
       "headers": [],
@@ -941,7 +932,7 @@
       "name": "401 · Excluir conta sem token",
       "description": "Excluir conta exige login: sem token, 401.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/usuarios/me",
+      "url": "http://localhost:3000/api/usuarios/me",
       "metaSortKey": 1040,
       "body": {},
       "headers": [],
@@ -954,7 +945,7 @@
       "name": "200 · Excluir conta do usuário A (e as reservas dele)",
       "description": "Delete real (sem soft delete e sem auditoria): apaga o usuário A e as reservas dele numa transação (200 com mensagem).",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/usuarios/me",
+      "url": "http://localhost:3000/api/usuarios/me",
       "metaSortKey": 1050,
       "body": {},
       "headers": [],
@@ -970,7 +961,7 @@
       "name": "200 · Excluir conta do usuário B",
       "description": "Apaga também o usuário B, para a collection não deixar dados de teste no banco.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/usuarios/me",
+      "url": "http://localhost:3000/api/usuarios/me",
       "metaSortKey": 1060,
       "body": {},
       "headers": [],
@@ -986,11 +977,11 @@
       "name": "401 · Login do usuário A após excluir",
       "description": "Prova que a exclusão foi real: o usuário A não consegue mais logar (401).",
       "method": "POST",
-      "url": "{{ _.base_url }}/auth/login",
+      "url": "http://localhost:3000/api/auth/login",
       "metaSortKey": 1070,
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"{% response 'body', 'req_register_a', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"senha\": \"{{ _.senha }}\"\n}"
+        "text": "{\n  \"email\": \"alice@teste.com\",\n  \"senha\": \"senha123\"\n}"
       },
       "headers": [
         {
@@ -1007,7 +998,7 @@
       "name": "404 · Token antigo após excluir a conta",
       "description": "O JWT antigo ainda é válido, mas o usuário não existe mais: 404.",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/usuarios/me",
+      "url": "http://localhost:3000/api/usuarios/me",
       "metaSortKey": 1080,
       "body": {},
       "headers": [],
