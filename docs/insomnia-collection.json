@@ -926,6 +926,35 @@
       "metaSortKey": 1030
     },
     {
+      "_id": "req_usuarios_sem_token",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "401 · Listar usuários sem token",
+      "description": "Listar usuários exige login: sem token, 401.",
+      "method": "GET",
+      "url": "http://localhost:3000/api/usuarios",
+      "metaSortKey": 1034,
+      "body": {},
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "req_usuarios",
+      "_type": "request",
+      "parentId": "fld_exclusao",
+      "name": "200 · Listar todos os usuários",
+      "description": "Lista todos os usuários só com id, nome e e-mail: o hash da senha nunca aparece.",
+      "method": "GET",
+      "url": "http://localhost:3000/api/usuarios",
+      "metaSortKey": 1037,
+      "body": {},
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{% response 'body', 'req_login_a', 'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+      }
+    },
+    {
       "_id": "req_del_sem_token",
       "_type": "request",
       "parentId": "fld_exclusao",
